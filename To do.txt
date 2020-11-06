@@ -9,7 +9,6 @@
 3.2 Xử lý khi Bomber sử dụng các Item và khi đi vào vị trí Portal
 - Xử lí items
 
-
 4. Tự động di chuyển các Enemy
 4.1 Balloom
 - Di chuyển ngẫu nhiên
