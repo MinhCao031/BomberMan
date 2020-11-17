@@ -1,25 +1,22 @@
-package graphics;
+package Bomberman.graphics;
 
 import javafx.scene.image.*;
 
-import java.awt.image.BufferedImage;
-import java.nio.IntBuffer;
+import java.util.Arrays;
 
 /**
  * Lưu trữ thông tin các pixel của 1 sprite (hình ảnh game)
  */
 public class Sprite {
-	
+	private static final int TRANSPARENT_COLOR = 0xffff00ff;
 	public static final int DEFAULT_SIZE = 16;
 	public static final int SCALED_SIZE = DEFAULT_SIZE * 2;
-    private static final int TRANSPARENT_COLOR = 0xffff00ff;
-	public final int SIZE;
+	private SpriteSheet _sheet;
 	private int _x, _y;
-	public int[] _pixels;
 	protected int _realWidth;
 	protected int _realHeight;
-	private SpriteSheet _sheet;
-
+	public int[] _pixels;
+	public final int SIZE;
 	/*
 	|--------------------------------------------------------------------------
 	| Board sprites
@@ -29,7 +26,6 @@ public class Sprite {
 	public static Sprite brick = new Sprite(DEFAULT_SIZE, 7, 0, SpriteSheet.tiles, 16, 16);
 	public static Sprite wall = new Sprite(DEFAULT_SIZE, 5, 0, SpriteSheet.tiles, 16, 16);
 	public static Sprite portal = new Sprite(DEFAULT_SIZE, 4, 0, SpriteSheet.tiles, 14, 14);
-	
 	/*
 	|--------------------------------------------------------------------------
 	| Bomber Sprites
@@ -203,16 +199,12 @@ public class Sprite {
 	}
 	
 	private void setColor(int color) {
-		for (int i = 0; i < _pixels.length; i++) {
-			_pixels[i] = color;
-		}
+		Arrays.fill(_pixels, color);
 	}
 
 	private void load() {
-		for (int y = 0; y < SIZE; y++) {
-			for (int x = 0; x < SIZE; x++) {
-				_pixels[x + y * SIZE] = _sheet._pixels[(x + _x) + (y + _y) * _sheet.SIZE];
-			}
+		for (int y = 0; y < SIZE; ++y) {
+			System.arraycopy(_sheet._pixels,  _x + (y + _y) * _sheet.SIZE, _pixels, y * SIZE, SIZE);
 		}
 	}
 	
@@ -223,7 +215,6 @@ public class Sprite {
 		if(calc < diff) {
 			return normal;
 		}
-			
 		if(calc < diff * 2) {
 			return x1;
 		}
@@ -247,8 +238,8 @@ public class Sprite {
 	public Image getFxImage() {
         WritableImage wr = new WritableImage(SIZE, SIZE);
         PixelWriter pw = wr.getPixelWriter();
-        for (int x = 0; x < SIZE; x++) {
-            for (int y = 0; y < SIZE; y++) {
+        for (int x = 0; x < SIZE; ++x) {
+            for (int y = 0; y < SIZE; ++y) {
                 if ( _pixels[x + y * SIZE] == TRANSPARENT_COLOR) {
                     pw.setArgb(x, y, 0);
                 }
@@ -266,19 +257,16 @@ public class Sprite {
 		final int H = (int) input.getHeight();
 		final int S = scaleFactor;
 
-		WritableImage output = new WritableImage(
-				W * S,
-				H * S
-		);
+		WritableImage output = new WritableImage(W * S,H * S);
 
 		PixelReader reader = input.getPixelReader();
 		PixelWriter writer = output.getPixelWriter();
 
-		for (int y = 0; y < H; y++) {
-			for (int x = 0; x < W; x++) {
+		for (int y = 0; y < H; ++y) {
+			for (int x = 0; x < W; ++x) {
 				final int argb = reader.getArgb(x, y);
-				for (int dy = 0; dy < S; dy++) {
-					for (int dx = 0; dx < S; dx++) {
+				for (int dy = 0; dy < S; ++dy) {
+					for (int dx = 0; dx < S; ++dx) {
 						writer.setArgb(x * S + dx, y * S + dy, argb);
 					}
 				}
