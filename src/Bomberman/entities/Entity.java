@@ -34,6 +34,10 @@ public abstract class Entity {
         this.img = img;
     }
 
+    public void setImg(Image img) {
+        this.img = img;
+    }
+
     /**
      * load ảnh trong GraphicsContext gc
      * @param gc

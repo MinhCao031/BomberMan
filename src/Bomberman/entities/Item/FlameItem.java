@@ -4,13 +4,6 @@ import javafx.scene.image.Image;
 
 /**
  * Item giúp bomb có thể nổ với phạm vi xa hơn.
- * Coi phạm vi là frameLong thì:                                           X
- *                                             X                           X
- *                   X                         X                           X
- * frameLong = 1 => XXX     frameLong = 2 => XXXXX     frameLong = 3 => XXXXXXX
- *                   X                         X                           X
- *                                             X                           X
- * and so on...                                                            X
  */
 public class FlameItem extends Item{
     /**

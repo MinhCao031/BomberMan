@@ -38,7 +38,9 @@ public class BombermanGame extends Application {
     private GraphicsContext entityGc;
     private GraphicsContext stillObjectsGc;
 
+    // Bomber, Item và Enemy
     private List<Entity> entities = new ArrayList<>();
+    // Cỏ, gạch, tường và Portal
     private List<Entity> stillObjects = new ArrayList<>();
 
 
@@ -67,23 +69,36 @@ public class BombermanGame extends Application {
         stage.setScene(scene);
         stage.show();
 
+        Bomber bomberman = new Bomber(2, 2, Sprite.player_down.getFxImage());
         AnimationTimer timer = new AnimationTimer() {
+            /**
+             * hàm này sẽ được gọi ~60 lần 1 giây.
+             * @param l thời gian hiện tại.
+             */
             @Override
             public void handle(long l) {
                 render();
                 update();
-                // For experiment
+//                For experiment
                 timeCount.setText("Time Count = " + l);
+//                bomberman.setImg(Sprite.movingSprite(Sprite.player_left, Sprite.player_right, (int)(l / 1e6), 10000).getFxImage());
             }
         };
         timer.start();
 
-        Bomber bomberman = new Bomber(2, 2, Sprite.player_down.getFxImage());
+        //Bomber bomberman = new Bomber(2, 2, Sprite.movingSprite(Sprite.player_left, Sprite.player_right, 9, 3).getFxImage());
         keymap = createMap(bomberman);
+        /**
+         * xử lí event nhập từ bàn phím
+         */
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
                 switch (keyEvent.getCode()){
+                    case SPACE:{
+                        bomberman.createBomb(entities);
+                        break;
+                    }
                     case LEFT:{
                         bomberman.moveLeft();
                         break;
@@ -98,10 +113,6 @@ public class BombermanGame extends Application {
                     }
                     case DOWN:{
                         bomberman.moveDown();
-                        break;
-                    }
-                    case SPACE:{
-                        bomberman.createBomb(entities);
                         break;
                     }
                 }
@@ -140,11 +151,11 @@ public class BombermanGame extends Application {
                             Item escape = new Portal(j, i, Sprite.portal.getFxImage());
 //                            object = new Brick(j, i, Sprite.brick.getFxImage());
 //                            object.setItemInside(escape);
-                            entities.add(escape);
+                            stillObjects.add(escape);
                             break;
                         }
                         case 'b': {
-                            Item bombPower = new BombsItem(j, i, Sprite.powerup_bombs.getFxImage());
+                            BombsItem bombPower = new BombsItem(j, i, Sprite.powerup_bombs.getFxImage());
 //                            object = new Brick(j, i, Sprite.brick.getFxImage());
 //                            object.setItemInside(bombPower);
                             entities.add(bombPower);
@@ -170,7 +181,7 @@ public class BombermanGame extends Application {
                             break;
                         }
                         case '2': {
-                            Entity enemy = new Oneal(j, i, Sprite.oneal_left1.getFxImage());
+                            Enemy enemy = new Oneal(j, i, Sprite.oneal_left1.getFxImage());
                             entities.add(enemy);
                             break;
                         }
@@ -194,10 +205,16 @@ public class BombermanGame extends Application {
         }
     }
 
+    /**
+     * Cập nhật trạng thái cho từng đối tượng.
+     */
     public void update() {
         //entities.forEach(Entity::update);
     }
 
+    /**
+     * Hiển thị hình ảnh của tất cả các đối tượng (Entity) lên cửa sổ.
+     */
     public void render() {
         entityGc.clearRect(0, 0, entityC.getWidth(), entityC.getHeight());
         entities.forEach(g -> g.render(entityGc));

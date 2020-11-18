@@ -11,15 +11,13 @@ import java.net.URL;
  */
 public class SpriteSheet {
 
-	private String _path;
 	public final int SIZE;
 	public int[] _pixels;
 	public BufferedImage image;
 
-	public static SpriteSheet tiles = new SpriteSheet("res/textures/classic.png", 256);
+	public static SpriteSheet tiles = new SpriteSheet(256);
 	
-	public SpriteSheet(String _path, int size) {
-		this._path = _path;
+	public SpriteSheet(int size) {
 		this.SIZE = size;
 		this._pixels = new int[SIZE * SIZE];
 		load();
@@ -27,13 +25,7 @@ public class SpriteSheet {
 	
 	private void load() {
 		try {
-			// URL a = SpriteSheet.class.getResource("res/textures/classic.png");
-			// nếu thấy in ra null và 1 đống exception thì
-			// 1) thay dòng 30 bằng dòng dưới đây
-			URL a = new URL("file:res/textures/classic.png");
-			// 2) sủa lại hàm khởi tạo SpriteSheet và dòng 19 cho phù hợp
-			System.out.println(a + " (Printed in file SpriteSheet.java for debugging)");
-			image = ImageIO.read(a);
+			image = ImageIO.read(new URL("file:res/textures/classic.png"));
 			int w = image.getWidth();
 			int h = image.getHeight();
 			image.getRGB(0, 0, w, h, _pixels, 0, w);
@@ -42,4 +34,26 @@ public class SpriteSheet {
 			System.exit(123);
 		}
 	}
+//  Bản gốc
+//  private String _path;
+// 	public static SpriteSheet tiles = new SpriteSheet("/textures/classic.png", 256);
+//	public SpriteSheet(String path, int size) {
+//		_path = path;
+//		SIZE = size;
+//		_pixels = new int[SIZE * SIZE];
+//		load();
+//	}
+//
+//	private void load() {
+//		try {
+//			URL a = SpriteSheet.class.getResource(_path);
+//			image = ImageIO.read(a);
+//			int w = image.getWidth();
+//			int h = image.getHeight();
+//			image.getRGB(0, 0, w, h, _pixels, 0, w);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			System.exit(0);
+//		}
+//	}
 }

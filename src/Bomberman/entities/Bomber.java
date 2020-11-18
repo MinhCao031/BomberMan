@@ -6,6 +6,9 @@ import Bomberman.graphics.Sprite;
 
 import java.util.List;
 
+/**
+ * Bomberman, nhân vật người chơi điều khiển
+ */
 public class Bomber extends Entity {
     /**
      * Số bomb hiện có trên màn hình.
@@ -177,10 +180,6 @@ public class Bomber extends Entity {
         }
         //System.out.println(x + " " + y);
     }
-
-    /**
-     * Di chuyển bomber.
-     */
     public void moveRight() {
         if(right / 3 == 0) {
             this.img = Sprite.player_right_1.getFxImage();
@@ -193,10 +192,6 @@ public class Bomber extends Entity {
         }
         //System.out.println(x + " " + y);
     }
-
-    /**
-     * Di chuyển bomber.
-     */
     public void moveUp() {
         if(up / 3 == 0) {
             this.img = Sprite.player_up_1.getFxImage();
@@ -209,10 +204,6 @@ public class Bomber extends Entity {
         }
         //System.out.println(x + " " + y);
     }
-
-    /**
-     * Di chuyển bomber.
-     */
     public void moveDown() {
         if(down / 3 == 0) {
             this.img = Sprite.player_down_1.getFxImage();
