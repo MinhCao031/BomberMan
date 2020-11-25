@@ -14,7 +14,7 @@ public class Balloom extends Enemy {
      */
     public Balloom(int x, int y, Image img) {
         super(x, y, img);
-        speed = 1;
+        speed = 0.06;
         throughWall = false;
     }
 
@@ -24,5 +24,6 @@ public class Balloom extends Enemy {
     @Override
     public void update() {
         // Hàm di chuyển ở đây
+        super.update();
     }
 }

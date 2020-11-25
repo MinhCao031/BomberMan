@@ -15,7 +15,7 @@ public class Oneal extends Enemy{
      */
     public Oneal(int x, int y, Image img) {
         super(x, y, img);
-        speed = 1;
+        speed = 0.05;
         throughWall = false;
     }
 
@@ -25,6 +25,7 @@ public class Oneal extends Enemy{
     @Override
     public void update() {
         // Hàm di chuyển ở đây
+        super.update();
     }
 
 }

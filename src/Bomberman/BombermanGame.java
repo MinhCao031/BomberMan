@@ -209,7 +209,7 @@ public class BombermanGame extends Application {
      * Cập nhật trạng thái cho từng đối tượng.
      */
     public void update() {
-        //entities.forEach(Entity::update);
+        entities.forEach(Entity::update);
     }
 
     /**
