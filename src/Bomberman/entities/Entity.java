@@ -34,6 +34,14 @@ public abstract class Entity {
         this.img = img;
     }
 
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
     public void setImg(Image img) {
         this.img = img;
     }

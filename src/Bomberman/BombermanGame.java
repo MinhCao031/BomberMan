@@ -30,6 +30,7 @@ public class BombermanGame extends Application {
     public static final int HEIGHT = 13;
     public static String keymap;
     public static Label timeCount;
+    public static int currTime;
 
     // Có thể hiểu canvas là 1 bức ảnh kích cỡ cố định
     // Còn GraphicsContext là 1 công cụ để vẽ canvas đó ở dạng 2D lên 1 node (Group, Pane, StackPane,...)
@@ -39,13 +40,18 @@ public class BombermanGame extends Application {
     private GraphicsContext stillObjectsGc;
 
     // Bomber, Item và Enemy
-    private List<Entity> entities = new ArrayList<>();
+    public static List<Entity> entities = new ArrayList<>();
     // Cỏ, gạch, tường và Portal
     private List<Entity> stillObjects = new ArrayList<>();
 
 
     public static void main(String[] args) {
+
         Application.launch(BombermanGame.class);
+    }
+
+    public static List<Entity> getEntities() {
+        return entities;
     }
 
     @Override
@@ -77,6 +83,7 @@ public class BombermanGame extends Application {
              */
             @Override
             public void handle(long l) {
+                currTime = (int) (l/1e6);
                 render();
                 update();
 //                For experiment
@@ -94,6 +101,7 @@ public class BombermanGame extends Application {
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+
                 switch (keyEvent.getCode()){
                     case SPACE:{
                         bomberman.createBomb(entities);
@@ -114,6 +122,9 @@ public class BombermanGame extends Application {
                     case DOWN:{
                         bomberman.moveDown();
                         break;
+                    }
+                    case A: {
+                        bomberman.createFlame();
                     }
                 }
             }
@@ -209,7 +220,9 @@ public class BombermanGame extends Application {
      * Cập nhật trạng thái cho từng đối tượng.
      */
     public void update() {
-        entities.forEach(Entity::update);
+        for (int i = 0; i < entities.size(); i++) {
+            entities.get(i).update();
+        }
     }
 
     /**

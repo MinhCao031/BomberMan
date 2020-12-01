@@ -1,8 +1,13 @@
 package Bomberman.entities.Enemy;
 
 import Bomberman.BombermanGame;
+import Bomberman.entities.Bomb;
+import Bomberman.entities.BombFlame;
+import Bomberman.graphics.Sprite;
 import javafx.scene.image.Image;
 import Bomberman.entities.Entity;
+
+import java.util.Random;
 
 /**
  * Địch-có-thể-tự-di-chuyển nói chung.
@@ -13,7 +18,7 @@ public abstract class Enemy extends Entity {
      * đơn vị ô vuông/frame (hoặc * 16pixel/frame).
      */
     protected double speed;
-    protected final double delta = 1;
+
     protected int indirectionIndex = 0;
     protected String[] indirection = {"right", "left", "up", "down"};
     /**
@@ -25,7 +30,8 @@ public abstract class Enemy extends Entity {
      * đã chết: false.
      */
     protected boolean live = true;
-
+    protected boolean dying = false;
+    protected int limit;
     /**
      * Tạo ra 1 Enemy.
      * @param x hoành độ (Trục Ox hướng sang phải).
@@ -36,11 +42,34 @@ public abstract class Enemy extends Entity {
         super( x, y, img);
     }
 
+    @Override
+    public void moveLeft() {
+        x -= speed;
+    }
+
+    @Override
+    public void moveRight() {
+        x += speed;
+    }
+
+    @Override
+    public void moveUp() {
+        y -= speed;
+    }
+
+    @Override
+    public void moveDown() {
+        y += speed;
+    }
+
     /**
      * kiem tra va cham voi tuong ben trai va ben phai
      * @param inDirection
      * @return
      */
+
+
+
     private boolean encounterObstacle(String inDirection) {
         switch (inDirection) {
             case "left":{
@@ -53,11 +82,8 @@ public abstract class Enemy extends Entity {
                 int nextTileY = (int)Math.floor(y);
                 char nextTile = BombermanGame.keymap.charAt(nextTileX + nextTileY * BombermanGame.WIDTH);
 
-                //Kiểm tra nếu tile tiếp theo khác wall hoặc brick thì đi tiếp. trả về giá trị false nếu ngược lại.
-                //Tại sao khác wall hoặc brick? vì trong keymap vẫn còn item, player...
-                //Lối logic: keymap vẫn lưu vị trí khởi tạo của enemy, khắc phục?
                 if(nextTile != '*' && nextTile != '#') {
-                    x -= speed;
+                    moveLeft();
                     //System.out.println(x + " " + y);
                     return true;
                 }
@@ -74,7 +100,7 @@ public abstract class Enemy extends Entity {
                 char nextTile = BombermanGame.keymap.charAt(nextTileX + nextTileY * BombermanGame.WIDTH);
 
                 if(nextTile != '*' && nextTile != '#') {
-                    x += speed;
+                    moveRight();
                     return true;
                 }
                 if(nextTile == '*' || nextTile == '#') {
@@ -90,7 +116,7 @@ public abstract class Enemy extends Entity {
                 char nextTile = BombermanGame.keymap.charAt(nextTileX + nextTileY * BombermanGame.WIDTH);
 
                 if(nextTile != '#' && nextTile != '*') {
-                    y -= speed;
+                    moveUp();
                     return true;
                 }
                 if(nextTile == '#' || nextTile == '*') {
@@ -106,7 +132,7 @@ public abstract class Enemy extends Entity {
                 char nextTile = BombermanGame.keymap.charAt(nextTileX + nextTileY * BombermanGame.WIDTH);
 
                 if(nextTile != '#' && nextTile != '*') {
-                    y += speed;
+                    moveDown();
                     //System.out.println(x + " " + y);
                     return true;
                 }
@@ -120,6 +146,18 @@ public abstract class Enemy extends Entity {
         }
     }
 
+    public void encounterFlame() {
+        for (int i = 0; i < BombermanGame.getEntities().size(); i++) {
+            Entity e = BombermanGame.getEntities().get(i);
+            if (e instanceof BombFlame) {
+                if (e.getX() + 1 >= x && e.getX() <= x && e.getY() + 1 >= y && e.getY() <= y) {
+                    dying = true;
+                    limit = BombermanGame.currTime + 4000;
+                }
+            }
+        }
+    }
+
     /**
      * Cập nhật vị trí của Enemy sau mỗi frame.
      */
@@ -130,10 +168,11 @@ public abstract class Enemy extends Entity {
          * chuyển hướng enemy khi gặp chướng ngại vật.s
          */
 
-        if(live) {
-            if(!encounterObstacle(indirection[indirectionIndex%4])) {
-                indirectionIndex++;
+        if(live && !dying) {
+            if(!encounterObstacle(indirection[indirectionIndex])) {
+                indirectionIndex = new Random().nextInt(4);
             }
+            encounterFlame();
         }
     }
 }

@@ -16,6 +16,8 @@ public class BombFlame extends Entity {
         super(x, y, img);
     }
 
+
+
     @Override
     public void update() {
         // Tồn tại trong 1 thời gian rất ngắn (khoảng 1 giây), sau đó biến mất

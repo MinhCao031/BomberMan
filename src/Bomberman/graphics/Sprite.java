@@ -2,6 +2,7 @@ package Bomberman.graphics;
 
 import javafx.scene.image.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -43,6 +44,33 @@ public class Sprite {
 	private void load() {
 		for (int y = 0; y < SIZE; ++y) {
 			System.arraycopy(_sheet._pixels,  _x + (y + _y) * _sheet.SIZE, _pixels, y * SIZE, SIZE);
+		}
+	}
+
+	public static Sprite movingSprite(Sprite normal, Sprite x1, Sprite x2, Sprite x3, int animate, int time) {
+		int calc = animate % time;
+		int diff = time / 4;
+
+		if(calc < diff) {
+			return normal;
+		} else if(calc < diff * 2) {
+			return x1;
+		} else if(calc < diff * 3) {
+			return x2;
+		} else {
+			return x3;
+		}
+	}
+
+	public static Sprite animation(int start, int animate, int end, Sprite...s) {
+		int time = (end - start);
+		int period = time/s.length;
+
+		Sprite[] sprites = s.clone();
+		try {
+			return sprites[(animate - start)/period];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return sprites[sprites.length - 1];
 		}
 	}
 

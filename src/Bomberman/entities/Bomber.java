@@ -240,6 +240,14 @@ public class Bomber extends Entity {
         }
     }
 
+    public void createFlame(){
+            int bombX = (int) Math.floor(x + 0.5);
+            int bombY = (int) Math.floor(y + 0.5);
+
+            BombFlame bf = new BombFlame(bombX, bombY, Sprite.explosion_vertical.getFxImage());
+            BombermanGame.getEntities().add(bf);
+    }
+
     @Override
     public void update() {
         //Coming soon.
