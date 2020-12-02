@@ -1,0 +1,16 @@
+TUTORIAL
+1. FOR ONE PLAYER
+* Use button "UP"  "DOWN","RIGHT","LEFT" to move your character up, down,right,left.
+* Use button "Enter" to place bomb.
+* If you have the "Bomb speed" item, use button "/" to activate the bomb.
+
+2. FOR TWO PLAYERS.
+* One person plays as described in the "1. FOR ONE PLAYER" part.
+* The other person uses button "a","s","d","w" to move your character left,down,right,up.
+* Use button "b" to place bomb.
+* If you have the "Bomb speed" item, use button "z" to activate the bomb.
+
+** REMINDER **
+TRY TO FIND THE DOOR AS MUCH AS YOU CAN.
+
+DO NOT TOUCH YOUR ENEMIES OR LET THE TIME RUN OUT.
