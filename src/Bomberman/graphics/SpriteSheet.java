@@ -10,22 +10,33 @@ import java.net.URL;
  * Class này giúp lấy ra các sprite riêng từ 1 ảnh chung duy nhất đó
  */
 public class SpriteSheet {
-
-	public final int SIZE;
+	public final int SIZE_WIDTH;
+	public final int SIZE_HEIGHT;
 	public int[] _pixels;
 	public BufferedImage image;
 
+/* My version */
+
 	public static SpriteSheet tiles = new SpriteSheet(256);
-	
+	public static SpriteSheet newTiles = new SpriteSheet(256, 160);
+
 	public SpriteSheet(int size) {
-		this.SIZE = size;
-		this._pixels = new int[SIZE * SIZE];
-		load();
+		this.SIZE_WIDTH = size;
+		this.SIZE_HEIGHT = size;
+		this._pixels = new int[SIZE_WIDTH * SIZE_WIDTH];
+		load("file:res/textures/classic.png");
 	}
-	
-	private void load() {
+
+	public SpriteSheet(int width, int height) {
+		this.SIZE_WIDTH = width;
+		this.SIZE_HEIGHT = height;
+		this._pixels = new int[SIZE_WIDTH * SIZE_HEIGHT];
+		load("file:res/textures/enemy.png");
+	}
+
+	private void load(String URL) {
 		try {
-			image = ImageIO.read(new URL("file:res/textures/classic.png"));
+			image = ImageIO.read(new URL(URL));
 			int w = image.getWidth();
 			int h = image.getHeight();
 			image.getRGB(0, 0, w, h, _pixels, 0, w);
@@ -34,7 +45,9 @@ public class SpriteSheet {
 			System.exit(123);
 		}
 	}
-//  Bản gốc
+
+/* Original Version (doesn't work on my device) */
+
 //  private String _path;
 // 	public static SpriteSheet tiles = new SpriteSheet("/textures/classic.png", 256);
 //	public SpriteSheet(String path, int size) {

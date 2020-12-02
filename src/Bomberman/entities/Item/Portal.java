@@ -1,6 +1,6 @@
 package Bomberman.entities.Item;
 
-import javafx.scene.image.Image;
+import Bomberman.graphics.Sprite;
 
 /**
  * "Item" này đặc biệt hơn các item khác.
@@ -13,14 +13,12 @@ public class Portal extends Item{
      * Tạo ra 1 Portal.
      * @param x hoành độ (Trục Ox hướng sang phải).
      * @param y tung độ (Trục Oy hướng xuống dưới).
-     * @param img ảnh của Portal.
      */
-    public Portal(int x, int y, Image img) {
-        super(x, y, img);
+    public Portal(int x, int y) {
+        super(x, y);
+        img = Sprite.portal.getFxImage();
     }
 
     @Override
-    public void update() {
-        //Gần như không có gì để update cả, chỉ chờ bomber đến đó và qua cửa (nếu đã giết hết địch).
-    }
+    public void update() {}
 }

@@ -1,8 +1,13 @@
 package Bomberman.entities;
 
-import javafx.scene.image.Image;
 import Bomberman.BombermanGame;
+import Bomberman.Gameplay;
+import Bomberman.S;
+import Bomberman.X;
+import Bomberman.entities.Enemy.Enemy;
+import Bomberman.entities.Item.*;
 import Bomberman.graphics.Sprite;
+import javafx.scene.image.Image;
 
 import java.util.List;
 
@@ -11,25 +16,78 @@ import java.util.List;
  */
 public class Bomber extends Entity {
     /**
-     * Số bomb hiện có trên màn hình.
-     */
-    public static int bombCounted = 0;
-    /**
      * các biến tạo hoạt ảnh cho bomber.
      */
     private int left, right, up, down;
     /**
+     * Sai số để bomber đi bị vấp.
+     */
+    private final double delta = 0.3;
+    /**
+     * Time to completely disappear.
+     */
+    private final int fadingTime = 1600;
+    /**
      * Số bomb tối đa người chơi có thể đặt tại 1 thời điểm.
      */
-    private int maxBomb;
+    private int maxBomb, flamePower;
+    /**
+     * Bomber set a bomb at bombset, Bomber died at timeDie.
+     */
+    private int bombSet, timeDie;
+    /**
+     * Các biến kiểm soát khả năng kích nổ bomb lập tức của bomber.
+     */
+    private int detonateTime, detonateDelay, moveSoundTime;
+    /**
+     * Kiểm soát tốc độ.
+     */
+    private int updateTime, updateDelay, moveSoundDelay;
     /**
      * Tốc độ của người chơi, đơn vị là ô vuông trên 1 lần bấm mũi tên.
      */
     private double speed;
     /**
-     * Sai số để bomber đi bị vấp.
+     * Some boolean of alive or ability.
      */
-    private final double delta;
+    private boolean alive, isImmuneToFlame, brickPass, bombPush, detonatePower;
+    /**
+     * true if this is player1.
+     */
+    protected boolean isP1;
+    /**
+     * Số bomb hiện có trên màn hình.
+     */
+    protected int bombCounted = 0;
+
+    /**
+     * Tạo ra 1 Bomber.
+     * @param x hoành độ (Trục Ox hướng sang phải).
+     * @param y tung độ (Trục Oy hướng xuống dưới).
+     * @param img ảnh của Bomber.
+     */
+    public Bomber(int x, int y, Image img, boolean isFirstPlayer) {
+        super( x, y, img);
+        left = 0; right = 0;
+        up = 0; down = 0;
+        maxBomb = 2;
+        flamePower = 1;
+        speed = 0.1;
+        alive = true;
+        isP1 = isFirstPlayer;
+        // ability
+        isImmuneToFlame = false;
+        brickPass = false;
+        bombPush = false;
+        detonatePower = false;
+        // others
+        detonateTime = 0;
+        detonateDelay = 500;
+        updateTime = X.currentTime;
+        updateDelay = 1;
+        moveSoundDelay = 300;
+        moveSoundTime = X.currentTime;
+    }
 
     /**
      * Kiểm tra bomber có va chạm chướng ngại ở hướng đi inDirection không.
@@ -44,23 +102,23 @@ public class Bomber extends Entity {
                 int nextTileYUp = (int)Math.floor(y);
                 int nextTileYDown = nextTileYUp + 1;
 
-                char nextTileUp = BombermanGame.keymap.charAt(nextTileX + nextTileYUp * BombermanGame.WIDTH);
-                char nextTileDown = BombermanGame.keymap.charAt(nextTileX + nextTileYDown * BombermanGame.WIDTH);
+                char nextTileUp = BombermanGame.getGameplay().keymap.charAt(nextTileX + nextTileYUp * BombermanGame.getGameplay().WIDTH);
+                char nextTileDown = BombermanGame.getGameplay().keymap.charAt(nextTileX + nextTileYDown * BombermanGame.getGameplay().WIDTH);
 
-                if(y - nextTileYUp < delta && nextTileUp != '#' && nextTileUp != '*'
-                && (nextTileDown == '#' || nextTileDown == '*')) {
+                if(y - nextTileYUp < delta && X.howMighty(nextTileUp) < (brickPass? 2: 1) && X.howMighty(nextTileDown) > (brickPass? 1: 0)) {
                     y = nextTileYUp;
-                    x -= speed;
+                    if(y - nextTileYUp == 0) x -= speed;
+                    //x -= speed;
                     //System.out.println(x + " " + y);
                     return true;
-                } else if (nextTileYDown - y < delta && nextTileDown != '#' && nextTileDown != '*'
-                && (nextTileUp == '#' || nextTileUp == '*')) {
+                } else if (nextTileYDown - y < delta && X.howMighty(nextTileDown) < (brickPass? 2: 1) && X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     y = nextTileYDown;
-                    x -= speed;
+                    if(y - nextTileYDown == 0) x -= speed;
+                    //x -= speed;
                     //System.out.println(x + " " + y);
                     return true;
                 }
-                if(nextTileUp == '#' || nextTileUp == '*' || nextTileDown == '#' || nextTileDown == '*') {
+                if(X.howMighty(nextTileDown) > (brickPass? 1: 0) || X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     x = nextTileX + 1;
                     return true;
                 }
@@ -71,23 +129,23 @@ public class Bomber extends Entity {
                 int nextTileYUp = (int)Math.floor(y);
                 int nextTileYDown = nextTileYUp + 1;
 
-                char nextTileUp = BombermanGame.keymap.charAt(nextTileX + nextTileYUp * BombermanGame.WIDTH);
-                char nextTileDown = BombermanGame.keymap.charAt(nextTileX + nextTileYDown * BombermanGame.WIDTH);
+                char nextTileUp = BombermanGame.getGameplay().keymap.charAt(nextTileX + nextTileYUp * BombermanGame.getGameplay().WIDTH);
+                char nextTileDown = BombermanGame.getGameplay().keymap.charAt(nextTileX + nextTileYDown * BombermanGame.getGameplay().WIDTH);
 
-                if(y - nextTileYUp < delta && nextTileUp != '#' && nextTileUp != '*'
-                && (nextTileDown == '#' || nextTileDown == '*')) {
+                if(y - nextTileYUp < delta && X.howMighty(nextTileUp) < (brickPass? 2: 1) && X.howMighty(nextTileDown) > (brickPass? 1: 0)) {
                     y = nextTileYUp;
-                    x += speed;
+                    if(y - nextTileYUp == 0) x += speed;
+                    //x += speed;
                     //System.out.println(x + " " + y);
                     return true;
-                } else if (nextTileYDown - y < delta && nextTileDown != '#' && nextTileDown != '*'
-                && (nextTileUp == '#' || nextTileUp == '*')) {
+                } else if (nextTileYDown - y < delta && X.howMighty(nextTileDown) < (brickPass? 2: 1) && X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     y = nextTileYDown;
-                    x += speed;
+                    if(y - nextTileYDown == 0) x += speed;
+                    //x += speed;
                     //System.out.println(x + " " + y);
                     return true;
                 }
-                if(nextTileUp == '#' || nextTileUp == '*' || nextTileDown == '#' || nextTileDown == '*') {
+                if(X.howMighty(nextTileDown) > (brickPass? 1: 0) || X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     x = nextTileX - 1;
                     return true;
                 }
@@ -98,23 +156,23 @@ public class Bomber extends Entity {
                 int nextTileXUp = (int)Math.floor(x);
                 int nextTileXDown = nextTileXUp + 1;
 
-                char nextTileUp = BombermanGame.keymap.charAt(nextTileXUp + nextTileY * BombermanGame.WIDTH);
-                char nextTileDown = BombermanGame.keymap.charAt(nextTileXDown + nextTileY * BombermanGame.WIDTH);
+                char nextTileUp = BombermanGame.getGameplay().keymap.charAt(nextTileXUp + nextTileY * BombermanGame.getGameplay().WIDTH);
+                char nextTileDown = BombermanGame.getGameplay().keymap.charAt(nextTileXDown + nextTileY * BombermanGame.getGameplay().WIDTH);
 
-                if(x - nextTileXUp < delta && nextTileUp != '#' && nextTileUp != '*'
-                && (nextTileDown == '#' || nextTileDown == '*')) {
+                if(x - nextTileXUp < delta && X.howMighty(nextTileUp) < (brickPass? 2: 1) && X.howMighty(nextTileDown) > (brickPass? 1: 0)) {
                     x = nextTileXUp;
-                    y -= speed;
+                    if(x - nextTileXUp == 0) y -= speed;
+                    //y -= speed;
                     //System.out.println(x + " " + y);
                     return true;
-                } else if (nextTileXDown - x < delta && nextTileDown != '#' && nextTileDown != '*'
-                && (nextTileUp == '#' || nextTileUp == '*')) {
+                } else if (nextTileXDown - x < delta && X.howMighty(nextTileDown) < (brickPass? 2: 1) && X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     x = nextTileXDown;
-                    y -= speed;
+                    if(x - nextTileXDown == 0) y -= speed;
+                    //y -= speed;
                     //System.out.println(x + " " + y);
                     return true;
                 }
-                if(nextTileUp == '#' || nextTileUp == '*' || nextTileDown == '#' || nextTileDown == '*') {
+                if(X.howMighty(nextTileDown) > (brickPass? 1: 0) || X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     y = nextTileY + 1;
                     return true;
                 }
@@ -125,23 +183,23 @@ public class Bomber extends Entity {
                 int nextTileXUp = (int)Math.floor(x);
                 int nextTileXDown = nextTileXUp + 1;
 
-                char nextTileUp = BombermanGame.keymap.charAt(nextTileXUp + nextTileY * BombermanGame.WIDTH);
-                char nextTileDown = BombermanGame.keymap.charAt(nextTileXDown + nextTileY * BombermanGame.WIDTH);
+                char nextTileUp = BombermanGame.getGameplay().keymap.charAt(nextTileXUp + nextTileY * BombermanGame.getGameplay().WIDTH);
+                char nextTileDown = BombermanGame.getGameplay().keymap.charAt(nextTileXDown + nextTileY * BombermanGame.getGameplay().WIDTH);
 
-                if(x - nextTileXUp < delta && nextTileUp != '#' && nextTileUp != '*'
-                && (nextTileDown == '#' || nextTileDown == '*')) {
+                if(x - nextTileXUp < delta && X.howMighty(nextTileUp) < (brickPass? 2: 1) && X.howMighty(nextTileDown) > (brickPass? 1: 0)) {
                     x = nextTileXUp;
-                    y += speed;
+                    if(x - nextTileXUp == 0) y += speed;
+                    //y += speed;
                     //System.out.println(x + " " + y);
                     return true;
-                } else if (nextTileXDown - x < delta && nextTileDown != '#' && nextTileDown != '*'
-                && (nextTileUp == '#' || nextTileUp == '*')) {
+                } else if (nextTileXDown - x < delta && X.howMighty(nextTileDown) < (brickPass? 2: 1) && X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     x = nextTileXDown;
-                    y += speed;
+                    if(x - nextTileXDown == 0) y += speed;
+                    //y += speed;
                     //System.out.println(x + " " + y);
                     return true;
                 }
-                if(nextTileUp == '#' || nextTileUp == '*' || nextTileDown == '#' || nextTileDown == '*') {
+                if(X.howMighty(nextTileDown) > (brickPass? 1: 0) || X.howMighty(nextTileUp) > (brickPass? 1: 0)) {
                     y = nextTileY - 1;
                     return true;
                 }
@@ -152,23 +210,10 @@ public class Bomber extends Entity {
     }
 
     /**
-     * Tạo ra 1 Bomber.
-     * @param x hoành độ (Trục Ox hướng sang phải).
-     * @param y tung độ (Trục Oy hướng xuống dưới).
-     * @param img ảnh của Bomber.
-     */
-    public Bomber(int x, int y, Image img) {
-        super( x, y, img);
-        left = 0; right = 0;
-        up = 0; down = 0;
-        maxBomb = 10;
-        speed = 0.1; delta = 0.25;
-    }
-
-    /**
      * Di chuyển bomber.
      */
     public void moveLeft() {
+        if (!alive) return;
         if(left / 3 == 0) {
             this.img = Sprite.player_left_1.getFxImage();
         } else {
@@ -178,9 +223,14 @@ public class Bomber extends Entity {
         if (x - speed >= Math.floor(x) || !encounterObstacle("left")) {
             x-=speed;
         }
-        //System.out.println(x + " " + y);
+        if (X.currentTime - moveSoundTime > moveSoundDelay) {
+            S.SE_bomberMove.stop();
+            S.SE_bomberMove.play();
+            moveSoundTime = X.currentTime;
+        }
     }
     public void moveRight() {
+        if (!alive) return;
         if(right / 3 == 0) {
             this.img = Sprite.player_right_1.getFxImage();
         } else {
@@ -190,9 +240,14 @@ public class Bomber extends Entity {
         if (x + speed < Math.ceil(x) || !encounterObstacle("right")) {
             x += speed;
         }
-        //System.out.println(x + " " + y);
+        if (X.currentTime - moveSoundTime > moveSoundDelay) {
+            S.SE_bomberMove.stop();
+            S.SE_bomberMove.play();
+            moveSoundTime = X.currentTime;
+        }
     }
     public void moveUp() {
+        if (!alive) return;
         if(up / 3 == 0) {
             this.img = Sprite.player_up_1.getFxImage();
         } else {
@@ -202,9 +257,14 @@ public class Bomber extends Entity {
         if (y - speed >= Math.floor(y) || !encounterObstacle("up")) {
             y -= speed;
         }
-        //System.out.println(x + " " + y);
+        if (X.currentTime - moveSoundTime > moveSoundDelay) {
+            S.SE_bomberMove.stop();
+            S.SE_bomberMove.play();
+            moveSoundTime = X.currentTime;
+        }
     }
     public void moveDown() {
+        if (!alive) return;
         if(down / 3 == 0) {
             this.img = Sprite.player_down_1.getFxImage();
         } else {
@@ -214,34 +274,185 @@ public class Bomber extends Entity {
         if (y + speed < Math.ceil(y) || !encounterObstacle("down")) {
             y+=speed;
         }
-        //System.out.println(x + " " + y);
+        if (X.currentTime - moveSoundTime > moveSoundDelay) {
+            S.SE_bomberMove.stop();
+            S.SE_bomberMove.play();
+            moveSoundTime = X.currentTime;
+        }
     }
 
     /**
-     * đặt bomb.
-     * @param stillObjects
+     * đặt bomb, lưu bomb vào list.
      */
-    public void createBomb(List<Entity> stillObjects){
-        if(++bombCounted <= maxBomb) {
+    public void createBomb(){
+        if(++bombCounted <= maxBomb && X.currentTime - bombSet > 160) {
+            bombSet = X.currentTime;
             // Chọn tọa độ hợp lí cho quả bomb
             int bombX = (int)(x + 0.5);
             int bombY = (int)(y + 0.5);
             // Đánh dấu vị trí của bomb trong bản đồ dạng string
-            int charPos = bombX + bombY * BombermanGame.WIDTH;
-            // Tạo biến Bomb
-            Bomb bomb = new Bomb(bombX, bombY, Sprite.bomb.getFxImage());
+            int charPos = bombX + bombY * BombermanGame.getGameplay().WIDTH;
             // Nếu tại ô đó chưa có bomb thì add bomb vào stillObject để nó hiển thị được lên màn hình
-            if(BombermanGame.keymap.charAt(charPos) != 'b') {
-                stillObjects.add(bomb);
-                String left = BombermanGame.keymap.substring(0,charPos);
-                String right = BombermanGame.keymap.substring(charPos + 1);
-                BombermanGame.keymap = left.concat("b").concat(right);
+            try {
+                if(BombermanGame.getGameplay().keymap.charAt(charPos) != 'B') {
+                    Bomb bomb = new Bomb(bombX, bombY, Sprite.bomb, isP1, flamePower, speed);
+                    S.SE_bomSet.stop();
+                    S.SE_bomSet.play();
+                    BombermanGame.getGameplay().getAnimations().add(bomb);
+                    BombermanGame.getGameplay().keymap = X.replace(BombermanGame.getGameplay().keymap, charPos, 'B');
+                } else bombCounted--;
+            } catch (Exception e) {
+                bombCounted--;
             }
-        }
+        } else bombCounted--;
+    }
+
+    public void dying() {
+        S.SE_bomberDie.play();
+        timeDie = X.currentTime;
+        alive = false;
+        isImmuneToFlame = false;
+        img = Sprite.movingSprite1PeriodOnly(fadingTime / 4, timeDie, Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3).getFxImage();
     }
 
     @Override
     public void update() {
-        //Coming soon.
+        if(!alive) {
+            // die
+            img = Sprite.movingSprite1PeriodOnly(fadingTime / 4, timeDie, Sprite.player_dead1, Sprite.player_dead2, Sprite.player_dead3).getFxImage();
+            if(X.currentTime - timeDie >= fadingTime) {
+                S.SE_bomberDie.stop();
+                img = null;
+                BombermanGame.getGameplay().getAnimations().remove(this);
+                BombermanGame.getGameplay().setStatus(-1);
+            }
+        } else {
+            List<Entity> entities = BombermanGame.getGameplay().getAnimations();
+
+            // Keyboard Handle
+            if (isP1) {
+                if (X.currentTime - updateTime >= updateDelay) {
+                    updateTime = X.currentTime;
+                    if (Gameplay.keyHandle.isP1up()) moveUp();
+                    if (Gameplay.keyHandle.isP1down()) moveDown();
+                    if (Gameplay.keyHandle.isP1left()) moveLeft();
+                    if (Gameplay.keyHandle.isP1right()) moveRight();
+                }
+                if(Gameplay.keyHandle.isP1setBomb()) createBomb();
+                if(detonatePower && Gameplay.keyHandle.isP1detonateBomb() && (X.currentTime - detonateTime > detonateDelay)) {
+                    detonateTime = X.currentTime;
+                    for (Entity e : entities) {
+                        if (e instanceof Bomb && ((Bomb) e).isFromP1()) {
+                            ((Bomb) e).explode();
+                            break;
+                        }
+                    }
+                }
+            } else {
+                if (X.currentTime - updateTime >= updateDelay) {
+                    updateTime = X.currentTime;
+                    if (Gameplay.keyHandle.isP2up()) moveUp();
+                    if (Gameplay.keyHandle.isP2down()) moveDown();
+                    if (Gameplay.keyHandle.isP2left()) moveLeft();
+                    if (Gameplay.keyHandle.isP2right()) moveRight();
+                }
+                if(Gameplay.keyHandle.isP2setBomb()) createBomb();
+                if(detonatePower && Gameplay.keyHandle.isP2detonateBomb() && (X.currentTime - detonateTime > detonateDelay)) {
+                    detonateTime = X.currentTime;
+                    for (Entity e : entities) {
+                        if (e instanceof Bomb && !((Bomb) e).isFromP1()) {
+                            ((Bomb) e).explode();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Checking enemies nearby.
+            int n = entities.size();
+            for (int i = n - 1; i >= 0; --i) {
+                Entity e = entities.get(i);
+                if (X.twoSqrCollide(x, y, e.x, e.y)) {
+                    if ( (e instanceof Enemy && ((Enemy) e).isAlive()) || (e instanceof BombFlame && !isImmuneToFlame)) {
+                        dying();
+                        break;
+                    }
+                }
+            }
+
+//            if (bombPush) for (int i = n - 1; i >= 0; --i) {
+//                Entity e = entities.get(i);
+//                int xB = (int)(x + 0.5);
+//                int yB = (int)(y + 0.5);
+//                if (e instanceof Bomb) {
+//                    if (Gameplay.keyHandle.isP1up() && xB == e.x && yB - 1 == e.y) {
+//                        ((Bomb)e).getKicked("up");
+//                    }
+//                    if (Gameplay.keyHandle.isP1down() && xB == e.x && yB + 1 == e.y) {
+//                        ((Bomb)e).getKicked("down");
+//                    }
+//                    if (Gameplay.keyHandle.isP1left() && xB - 1 == e.x && yB == e.y) {
+//                        ((Bomb)e).getKicked("left");
+//                    }
+//                    if (Gameplay.keyHandle.isP1right() && xB + 1 == e.x && yB == e.y) {
+//                        ((Bomb)e).getKicked("right");
+//                    }
+//                }
+//            }
+
+
+                // Looking for items
+            entities = BombermanGame.getGameplay().getMayVanish();
+            n = entities.size();
+            for (int i = n - 1; i >= 0; --i) {
+                Entity e = entities.get(i);
+                if (X.twoSqrCollide(x, y, e.x, e.y)) {
+                    if (e instanceof Portal && Enemy.getNumOfEnemy() == 0) {
+                        System.out.println("You win.");
+                        S.BGM_inGame1.stop();
+                        S.BGM_levelFinished.stop();
+                        S.BGM_levelFinished.play();
+                        BombermanGame.getGameplay().setStatus(1);
+                        Enemy.reduceEnemy();
+                        break;
+                    } else if (e instanceof BombsItem) {
+                        S.SE_itemTaken.stop();
+                        ++maxBomb;
+                        S.SE_itemTaken.play();
+                        ((BombsItem) e).disappear();
+                    } else if (e instanceof FlameItem) {
+                        S.SE_itemTaken.stop();
+                        ++flamePower;
+                        S.SE_itemTaken.play();
+                        ((FlameItem) e).disappear();
+                    } else if (e instanceof SpeedItem) {
+                        S.SE_itemTaken.stop();
+                        speed += 0.02;
+                        S.SE_itemTaken.play();
+                        ((SpeedItem) e).disappear();
+                    } else if (e instanceof BrickPassItem) {
+                        S.SE_itemTaken.stop();
+                        brickPass = true;
+                        S.SE_itemTaken.play();
+                        ((BrickPassItem) e).disappear();
+                    } else if (e instanceof DetonatorItem) {
+                        S.SE_itemTaken.stop();
+                        detonatePower = true;
+                        S.SE_itemTaken.play();
+                        ((DetonatorItem) e).disappear();
+                    } else if (e instanceof BombPushItem) {
+                        S.SE_itemTaken.stop();
+                        bombPush = true;
+                        S.SE_itemTaken.play();
+                        ((BombPushItem) e).disappear();
+                    } else if (e instanceof FlamePassItem) {
+                        S.SE_itemTaken.stop();
+                        isImmuneToFlame = true;
+                        S.SE_itemTaken.play();
+                        ((FlamePassItem) e).disappear();
+                    }
+                }
+            }
+        }
     }
 }

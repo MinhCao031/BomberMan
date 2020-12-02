@@ -1,6 +1,6 @@
 package Bomberman.entities.Item;
 
-import javafx.scene.image.Image;
+import Bomberman.graphics.Sprite;
 
 /**
  * Item giúp người chơi chạy nhanh hơn.
@@ -10,14 +10,12 @@ public class SpeedItem extends Item{
      * Tạo ra 1 SpeedItem.
      * @param x hoành độ (Trục Ox hướng sang phải).
      * @param y tung độ (Trục Oy hướng xuống dưới).
-     * @param img ảnh của SpeedItem.
      */
-    public SpeedItem(int x, int y, Image img) {
-        super(x, y, img);
+    public SpeedItem(int x, int y) {
+        super(x, y);
+        img = Sprite.powerup_speed.getFxImage();
     }
 
     @Override
-    public void update() {
-        //Gần như không có gì để update cả, chỉ chờ bomber lấy đc và nó sẽ biến mất.
-    }
+    public void update() {}
 }

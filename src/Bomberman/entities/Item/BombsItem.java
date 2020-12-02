@@ -1,6 +1,6 @@
 package Bomberman.entities.Item;
 
-import javafx.scene.image.Image;
+import Bomberman.graphics.Sprite;
 
 /**
  * Item giúp người chơi tăng số bomb tối đa có thể đặt (maxBomb).
@@ -11,10 +11,10 @@ public class BombsItem extends Item {
      * Tạo ra 1 BombsItem.
      * @param x hoành độ (Trục Ox hướng sang phải).
      * @param y tung độ (Trục Oy hướng xuống dưới).
-     * @param img ảnh của BombsItem.
      */
-    public BombsItem(int x, int y, Image img) {
-        super(x, y, img);
+    public BombsItem(int x, int y) {
+        super(x, y);
+        img = Sprite.powerup_bombs.getFxImage();
     }
 
     @Override

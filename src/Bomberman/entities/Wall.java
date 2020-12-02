@@ -18,7 +18,5 @@ public class Wall extends Entity {
     }
 
     @Override
-    public void update() {
-        // Nothing here, i guess.
-    }
+    public void update() {}
 }
