@@ -1,11 +1,19 @@
-# BomberMan To-do list (Có ý kiến gì thì comment vào đây nha)
+1. Thiết kế cây thừa kế cho các đối tượng game
 
-Update: 1/12/2020 hạn thứ 4
+2. Xây dựng bản đồ màn chơi từ tệp cấu hình
 
-1. Đạt: Edit ảnh classic.png + slide
+3. Di chuyển Bomber theo sự điều khiển từ người chơi
+3.1 Bomb
+- Bom nổ sẽ phá hủy block, người chơi và địch trong phạm vi nổ của nó 
+-> xử lí va chạm của bom và flame với các đối tượng khác
+3.2 Xử lý khi Bomber sử dụng các Item và khi đi vào vị trí Portal
+- Xử lí items
 
-2. Hằng: làm về hệ thống điểm (khi nào thì cộng điểm, khi nào trừ), ghi ra file text riêng
+4. Tự động di chuyển các Enemy
+4.1 Balloom
+- Di chuyển ngẫu nhiên
+4.2 Oneal
+- Di chuyển nhanh hơn, đuổi theo bomber nếu ở gần
+4.3 Va chạm với bom, tường
 
-Tìm tất cả các file liên quan đến âm thanh (BGM, soundEffect, ...) cho vào mục res/sound/...
-
-3. Hoa: Làm nốt giao diện menu.
+5. Điểm số và thời gian
