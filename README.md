@@ -5,18 +5,13 @@ Quá trình làm game
 
 3. Di chuyển Bomber theo sự điều khiển từ người chơi
 
-3.1 Bomb
-- Bom nổ sẽ phá hủy block, người chơi và địch trong phạm vi nổ của nó 
--> xử lí va chạm của bom và flame với các đối tượng khác
-3.2 Xử lý khi Bomber sử dụng các Item và khi đi vào vị trí Portal
-- Xử lí items
+- Bomb: Bom nổ sẽ phá hủy block, người chơi và địch trong phạm vi nổ của nó 
+- Xử lý khi Bomber sử dụng các Item và khi đi vào vị trí Portal
 
 4. Tự động di chuyển các Enemy
+- Balloom: Di chuyển ngẫu nhiên
+- Oneal: Di chuyển nhanh hơn, đuổi theo bomber nếu ở gần
 
-4.1 Balloom
-- Di chuyển ngẫu nhiên
-4.2 Oneal
-- Di chuyển nhanh hơn, đuổi theo bomber nếu ở gần
-4.3 Va chạm với bom, tường
+5. Xử lý các va chạm có thể xảy ra (tường, người chơi, enemy, bomb, item,...)
 
-5. Tính toán điểm số và đặt thời gian cho các ván chơi
+6. Tính toán điểm số và đặt thời gian cho các ván chơi
